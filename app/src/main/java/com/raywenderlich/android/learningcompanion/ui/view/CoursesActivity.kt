@@ -35,6 +35,7 @@
 package com.raywenderlich.android.learningcompanion.ui.view
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
@@ -94,6 +95,7 @@ class CoursesActivity : AppCompatActivity() {
   }
 
   private fun handleDarkTheme(toggleValue: Boolean?) {
+    Log.d("VRAJTEST", "handleDarkTheme : $toggleValue")
     val selectedDefaultMode = if (toggleValue == true) {
       AppCompatDelegate.MODE_NIGHT_YES
     } else {

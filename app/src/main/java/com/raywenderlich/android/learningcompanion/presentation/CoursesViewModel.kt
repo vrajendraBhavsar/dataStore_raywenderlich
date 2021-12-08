@@ -34,16 +34,17 @@
 
 package com.raywenderlich.android.learningcompanion.presentation
 
+import android.util.Log
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import com.raywenderlich.android.learningcompanion.data.getCourseList
-import com.raywenderlich.android.learningcompanion.data.preferences.SharedPrefs
 import com.raywenderlich.android.learningcompanion.prefsstore.PrefsStore
 import kotlinx.coroutines.launch
 
 class CoursesViewModel @ViewModelInject constructor(
 //  private val sharedPrefs: SharedPrefs,
   private val prefsStore: PrefsStore,
+//private val preferenceApi: DataStorePreferenceApi
 ) : ViewModel() {
 
   val courses = getCourseList().asLiveData()
@@ -57,8 +58,23 @@ class CoursesViewModel @ViewModelInject constructor(
 //  }
 
   //2. data store
-  val darkThemeEnabled: LiveData<Boolean> = prefsStore.isNightMode().asLiveData()
+//  viewModelScope.launch {
 
+  //..........
+
+//  private val _darkThemeEnabled = MutableLiveData<Boolean>()
+//  val darkThemeEnabled: LiveData<Boolean> = _darkThemeEnabled
+//
+//  init {
+//    viewModelScope.launch {
+//      _darkThemeEnabled.value = prefsStore.isNightMode().asLiveData().value //???????????????????
+//      Log.d("VRAJTEST", "_darkThemeEnabled value VM 69 : ${_darkThemeEnabled.value}")
+//    }
+//  }
+
+  //.............
+
+  val darkThemeEnabled = prefsStore.isNightMode().asLiveData()
 
   fun enableBeginnerFilter(enable: Boolean) {
     viewModelScope.launch {
@@ -80,6 +96,7 @@ class CoursesViewModel @ViewModelInject constructor(
 
   fun toggleNightMode() { //on fun call..true -> false, false -> true
     viewModelScope.launch {
+      Log.d("VRAJTEST", "toggleNightMode VM called")
       // Add a call to prefs store to toggle night mode
 
       //1 shared pref
