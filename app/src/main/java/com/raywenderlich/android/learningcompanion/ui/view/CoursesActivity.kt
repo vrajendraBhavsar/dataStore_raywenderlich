@@ -35,7 +35,6 @@
 package com.raywenderlich.android.learningcompanion.ui.view
 
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
@@ -51,95 +50,82 @@ import kotlinx.android.synthetic.main.activity_courses.*
 
 @AndroidEntryPoint
 class CoursesActivity : AppCompatActivity() {
-  private val viewModel: CoursesViewModel by viewModels()
-  private val adapter by lazy { CoursesAdapter() }
-  private var nightModeActive = false
+    private val viewModel: CoursesViewModel by viewModels()
+    private val adapter by lazy { CoursesAdapter() }
+    private var nightModeActive = false
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    setTheme(R.style.AppTheme)
-    super.onCreate(savedInstanceState)
-    setContentView(R.layout.activity_courses)
-
-    initCourseList()
-    subscribeToData()
-    observeFilterChanges()
-  }
-
-  private fun initCourseList() {
-    courseList.layoutManager = LinearLayoutManager(this)
-    courseList.itemAnimator = DefaultItemAnimator()
-    courseList.adapter = adapter
-  }
-
-  private fun subscribeToData() {
-    // Subscribe to get the data from the ViewModel
-    viewModel.courses.observe(this) {
-      adapter.setCourses(it)
-    }
-  }
-
-  private fun observeFilterChanges() {
-    filterBeginner.setOnCheckedChangeListener { _, isChecked ->
-      viewModel.enableBeginnerFilter(isChecked)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.AppTheme)
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_courses)
+        initCourseList()
+        subscribeToData()
+        observeFilterChanges()
+        initObserver()
     }
 
-    filterAdvanced.setOnCheckedChangeListener { _, isChecked ->
-      viewModel.enableAdvancedFilter(isChecked)
+    private fun initObserver() {
+        with(viewModel) {
+            isNightModeOnLiveEvent.observe(this@CoursesActivity, ::handleDarkTheme)
+        }
     }
 
-    filterCompleted.setOnCheckedChangeListener { _, isChecked ->
-      viewModel.enableCompletedFilter(isChecked)
+    private fun initCourseList() {
+        courseList.layoutManager = LinearLayoutManager(this)
+        courseList.itemAnimator = DefaultItemAnimator()
+        courseList.adapter = adapter
     }
 
-    viewModel.darkThemeEnabled.observe(this, ::handleDarkTheme)
-  }
-
-  private fun handleDarkTheme(toggleValue: Boolean?) {
-    Log.d("VRAJTEST", "handleDarkTheme : $toggleValue")
-    val selectedDefaultMode = if (toggleValue == true) {
-      AppCompatDelegate.MODE_NIGHT_YES
-    } else {
-      AppCompatDelegate.MODE_NIGHT_NO
+    private fun subscribeToData() {
+        // Subscribe to get the data from the ViewModel
+        viewModel.courses.observe(this) {
+            adapter.setCourses(it)
+        }
     }
 
-    AppCompatDelegate.setDefaultNightMode(selectedDefaultMode)
-  }
+    private fun observeFilterChanges() {
+        filterBeginner.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.enableBeginnerFilter(isChecked)
+        }
 
-//  private fun updateFilter(filter: FilterOption.Filter) {
-//    filterBeginner.isChecked = filter == FilterOption.Filter.BEGINNER ||
-//        filter == FilterOption.Filter.BEGINNER_ADVANCED ||
-//        filter == FilterOption.Filter.BEGINNER_COMPLETED ||
-//        filter == FilterOption.Filter.ALL
-//
-//    filterAdvanced.isChecked = filter == FilterOption.Filter.ADVANCED ||
-//        filter == FilterOption.Filter.ADVANCED_COMPLETED ||
-//        filter == FilterOption.Filter.BEGINNER_ADVANCED ||
-//        filter == FilterOption.Filter.ALL
-//
-//    filterCompleted.isChecked = filter == FilterOption.Filter.COMPLETED ||
-//        filter == FilterOption.Filter.BEGINNER_COMPLETED ||
-//        filter == FilterOption.Filter.ADVANCED_COMPLETED ||
-//        filter == FilterOption.Filter.ALL
-//  }
+        filterAdvanced.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.enableAdvancedFilter(isChecked)
+        }
 
-  override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-    menuInflater.inflate(R.menu.overflow_menu, menu)
-    return true
-  }
-
-  override fun onOptionsItemSelected(item: MenuItem): Boolean {
-    if (item.itemId == R.id.dayNightMode) {
-      viewModel.toggleNightMode()
+        filterCompleted.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.enableCompletedFilter(isChecked)
+        }
     }
-    return true
-  }
 
-  override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-    if (nightModeActive) {
-      menu?.findItem(R.id.dayNightMode)?.setIcon(R.drawable.icn_night_mode)
-    } else {
-      menu?.findItem(R.id.dayNightMode)?.setIcon(R.drawable.icn_light_mode)
+    private fun handleDarkTheme(isNightModeOn: Boolean) {
+        val selectedDefaultMode = if (isNightModeOn) {
+            viewModel.toggleNightMode(isNightMode = false)
+            AppCompatDelegate.MODE_NIGHT_YES
+        } else {
+            viewModel.toggleNightMode(isNightMode = true)
+            AppCompatDelegate.MODE_NIGHT_NO
+        }
+        AppCompatDelegate.setDefaultNightMode(selectedDefaultMode)
     }
-    return true
-  }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.overflow_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.dayNightMode) {
+            viewModel.checkAndSave()
+        }
+        return true
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        if (nightModeActive) {
+            menu?.findItem(R.id.dayNightMode)?.setIcon(R.drawable.icn_night_mode)
+        } else {
+            menu?.findItem(R.id.dayNightMode)?.setIcon(R.drawable.icn_light_mode)
+        }
+        return true
+    }
 }

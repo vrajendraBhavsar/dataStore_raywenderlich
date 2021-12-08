@@ -36,78 +36,63 @@ package com.raywenderlich.android.learningcompanion.presentation
 
 import android.util.Log
 import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.*
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.raywenderlich.android.learningcompanion.data.getCourseList
+import com.raywenderlich.android.learningcompanion.jagdish_datastore.datastore.SingleLiveEvent
 import com.raywenderlich.android.learningcompanion.prefsstore.PrefsStore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 
 class CoursesViewModel @ViewModelInject constructor(
-//  private val sharedPrefs: SharedPrefs,
-  private val prefsStore: PrefsStore,
-//private val preferenceApi: DataStorePreferenceApi
+    private val prefsStore: PrefsStore,
 ) : ViewModel() {
 
-  val courses = getCourseList().asLiveData()
-
-  //1. shared pref
-//  private val _darkThemeEnabled = MutableLiveData<Boolean>()
-//  val darkThemeEnabled: LiveData<Boolean> = _darkThemeEnabled
-//
-//  init {
-//    _darkThemeEnabled.value = sharedPrefs.isDarkThemeEnabled() //set Boolean if dark theme is enabled or not
-//  }
-
-  //2. data store
-//  viewModelScope.launch {
-
-  //..........
-
-//  private val _darkThemeEnabled = MutableLiveData<Boolean>()
-//  val darkThemeEnabled: LiveData<Boolean> = _darkThemeEnabled
-//
-//  init {
-//    viewModelScope.launch {
-//      _darkThemeEnabled.value = prefsStore.isNightMode().asLiveData().value //???????????????????
-//      Log.d("VRAJTEST", "_darkThemeEnabled value VM 69 : ${_darkThemeEnabled.value}")
-//    }
-//  }
-
-  //.............
-
-  val darkThemeEnabled = prefsStore.isNightMode().asLiveData()
-
-  fun enableBeginnerFilter(enable: Boolean) {
-    viewModelScope.launch {
-      // Add a call to proto store to enable beginner filter
+    companion object {
+        val TAG = CoursesViewModel::class.java.simpleName
     }
-  }
 
-  fun enableAdvancedFilter(enable: Boolean) {
-    viewModelScope.launch {
-      // Add a call to proto store to enable advanced filter
+    val courses = getCourseList().asLiveData()
+
+    private val _isNightModeOnLiveEvent: SingleLiveEvent<Boolean> = SingleLiveEvent()
+    val isNightModeOnLiveEvent get() = _isNightModeOnLiveEvent
+
+    fun checkAndSave() {
+        viewModelScope.launch {
+            prefsStore.isNightMode().flowOn(Dispatchers.IO).collect { isNightMode ->
+                _isNightModeOnLiveEvent.value = isNightMode
+                Log.d(TAG, "isNightMode: $isNightMode")
+            }
+        }
     }
-  }
 
-  fun enableCompletedFilter(enable: Boolean) {
-    viewModelScope.launch {
-      // Add a call to proto store to enable completed filter
+    fun enableBeginnerFilter(enable: Boolean) {
+        viewModelScope.launch {
+            // Add a call to proto store to enable beginner filter
+        }
     }
-  }
 
-  fun toggleNightMode() { //on fun call..true -> false, false -> true
-    viewModelScope.launch {
-      Log.d("VRAJTEST", "toggleNightMode VM called")
-      // Add a call to prefs store to toggle night mode
-
-      //1 shared pref
-//      val darkThemeEnabledTemp = _darkThemeEnabled.value
-//        sharedPrefs.setDarkThemeEnabled(!darkThemeEnabledTemp!!)  //set changed toggle value in Shared Pref
-//        _darkThemeEnabled.value = !darkThemeEnabledTemp //set value in Live data
-
-      //2 data store
-      prefsStore.toggleNightMode()
+    fun enableAdvancedFilter(enable: Boolean) {
+        viewModelScope.launch {
+            // Add a call to proto store to enable advanced filter
+        }
     }
-  }
+
+    fun enableCompletedFilter(enable: Boolean) {
+        viewModelScope.launch {
+            // Add a call to proto store to enable completed filter
+        }
+    }
+
+    fun toggleNightMode(isNightMode : Boolean) {
+        viewModelScope.launch {
+            prefsStore.toggleNightMode(isNightMode)
+        }
+    }
 }
 
 //data class CourseUiModel(val courses: List<Course>, val filter: FilterOption.Filter)

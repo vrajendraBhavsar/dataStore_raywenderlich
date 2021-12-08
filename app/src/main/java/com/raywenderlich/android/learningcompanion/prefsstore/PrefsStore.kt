@@ -1,8 +1,9 @@
 package com.raywenderlich.android.learningcompanion.prefsstore
 
+import androidx.lifecycle.LiveData
 import kotlinx.coroutines.flow.Flow
 
 interface PrefsStore {
-    fun isNightMode() : Flow<Boolean>
-    suspend fun toggleNightMode()
+    suspend fun isNightMode() : Flow<Boolean>
+    suspend fun toggleNightMode(isNightMode : Boolean)
 }
