@@ -49,32 +49,7 @@ class CoursesViewModel @ViewModelInject constructor(
 
   val courses = getCourseList().asLiveData()
 
-  //1. shared pref
-//  private val _darkThemeEnabled = MutableLiveData<Boolean>()
-//  val darkThemeEnabled: LiveData<Boolean> = _darkThemeEnabled
-//
-//  init {
-//    _darkThemeEnabled.value = sharedPrefs.isDarkThemeEnabled() //set Boolean if dark theme is enabled or not
-//  }
-
-  //2. data store
-//  viewModelScope.launch {
-
-  //..........
-
-//  private val _darkThemeEnabled = MutableLiveData<Boolean>()
-//  val darkThemeEnabled: LiveData<Boolean> = _darkThemeEnabled
-//
-//  init {
-//    viewModelScope.launch {
-//      _darkThemeEnabled.value = prefsStore.isNightMode().asLiveData().value //???????????????????
-//      Log.d("VRAJTEST", "_darkThemeEnabled value VM 69 : ${_darkThemeEnabled.value}")
-//    }
-//  }
-
-  //.............
-
-  val darkThemeEnabled = prefsStore.isNightMode().asLiveData()
+  val darkThemeEnabled = prefsStore.isNightMode()
 
   fun enableBeginnerFilter(enable: Boolean) {
     viewModelScope.launch {
@@ -97,14 +72,7 @@ class CoursesViewModel @ViewModelInject constructor(
   fun toggleNightMode() { //on fun call..true -> false, false -> true
     viewModelScope.launch {
       Log.d("VRAJTEST", "toggleNightMode VM called")
-      // Add a call to prefs store to toggle night mode
 
-      //1 shared pref
-//      val darkThemeEnabledTemp = _darkThemeEnabled.value
-//        sharedPrefs.setDarkThemeEnabled(!darkThemeEnabledTemp!!)  //set changed toggle value in Shared Pref
-//        _darkThemeEnabled.value = !darkThemeEnabledTemp //set value in Live data
-
-      //2 data store
       prefsStore.toggleNightMode()
     }
   }
